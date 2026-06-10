@@ -1,0 +1,40 @@
+{
+  "name": "astrena",
+  "version": "0.1.0",
+  "description": "Astro content loader for Are.na",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "astro-loader",
+    "withastro",
+    "astro-component",
+    "are.na",
+    "arena"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "astro": ">=5.0.0"
+  },
+  "dependencies": {
+    "@aredotna/sdk": "^0.0.4"
+  },
+  "devDependencies": {
+    "astro": "^5.0.0",
+    "tsdown": "^0.22.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.6"
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --dts --clean",
+    "dev": "tsdown src/index.ts --dts --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm build"
+  }
+}
