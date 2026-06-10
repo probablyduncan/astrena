@@ -1,7 +1,11 @@
 {
-  "name": "astrena",
+  "name": "@probablyduncan/astrena",
   "version": "0.1.0",
-  "description": "Astro content loader for Are.na",
+  "description": "are.na channel content loader for astro.build",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probablyduncan/astrena"
+  },
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs"
