@@ -7,3 +7,6 @@ export type {
   ArenaCollectionFilter,
   ArenaEntryFilter,
 } from './arena-live-loader.js'
+
+export { arenaBlockSchema } from './schema.js'
+export type { ArenaBlock } from './schema.js'

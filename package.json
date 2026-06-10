@@ -35,10 +35,9 @@
     "vitest": "^3.2.6"
   },
   "scripts": {
-    "build": "tsdown src/index.ts --dts --clean",
+    "build": "tsc --noEmit && tsdown src/index.ts --dts --clean",
     "dev": "tsdown src/index.ts --dts --watch",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "prepublishOnly": "pnpm build"
+    "test:watch": "vitest"
   }
 }

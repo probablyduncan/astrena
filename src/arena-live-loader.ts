@@ -1,4 +1,5 @@
 import type { LiveLoader } from 'astro/loaders'
+import { createArena } from '@aredotna/sdk'
 import type { Block, ContentTypeFilter } from '@aredotna/sdk'
 import type { ChannelContentSort } from '@aredotna/sdk/api'
 
@@ -27,17 +28,49 @@ type BlockData = Block & Record<string, any>
 export function arenaLiveLoader(
   config: ArenaLiveLoaderConfig,
 ): LiveLoader<BlockData, ArenaEntryFilter, ArenaCollectionFilter> {
+  const arena = createArena({ token: config.token })
+
   return {
     name: 'arena-live-loader',
-    async loadCollection(_context) {
-      // TODO: use createArena({ token: config.token }) to fetch channel contents,
-      // paginate through all pages, filter by filter.types and apply filter.sort,
-      // return entries as { id: String(block.id), data: block }
-      return { entries: [] }
+
+    async loadCollection(context) {
+      const filter = context.filter
+      const query: Record<string, unknown> = {}
+      if (filter?.sort !== undefined) query.sort = filter.sort
+
+      const entries: Array<{ id: string; data: BlockData }> = []
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for await (const page of arena.channels.paginateContents(config.channel, query as any)) {
+          for (const item of page.data) {
+            // Filter out sub-channels embedded in channel contents
+            if ((item as { type?: string }).type === 'Channel') continue
+            // Filter by type if specified
+            if (filter?.types && filter.types.length > 0) {
+              if (!filter.types.includes((item as { type: string }).type as ContentTypeFilter))
+                continue
+            }
+
+            const block = item as BlockData
+            entries.push({ id: String(block.id), data: block })
+          }
+        }
+      } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)) }
+      }
+
+      return { entries }
     },
-    async loadEntry(_context) {
-      // TODO: use arena.blocks.get(filter.id) and return { id: String(block.id), data: block }
-      return undefined
+
+    async loadEntry(context) {
+      try {
+        const block = await arena.blocks.get(context.filter.id, {})
+        if (block == null) return undefined
+        return { id: String(block.id), data: block as BlockData }
+      } catch (err) {
+        return { error: err instanceof Error ? err : new Error(String(err)) }
+      }
     },
   } satisfies LiveLoader<BlockData, ArenaEntryFilter, ArenaCollectionFilter>
 }
