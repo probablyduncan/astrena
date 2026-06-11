@@ -1,4 +1,7 @@
 minimumReleaseAge: 0
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
+# onlyBuiltDependencies:
+#   - esbuild
+#   - sharp
+allowBuilds:
+  esbuild: false
+  sharp: false
