@@ -1,12 +1,12 @@
-export { arenaLoader } from './arena-loader.js'
-export type { ArenaLoaderConfig } from './arena-loader.js'
+export { arenaBlockLoader } from './arena-block-loader.js'
+export type { ArenaBlockLoaderConfig } from './arena-block-loader.js'
 
-export { arenaLiveLoader } from './arena-live-loader.js'
+export { arenaLiveBlockLoader } from './arena-live-block-loader.js'
 export type {
-  ArenaLiveLoaderConfig,
+  ArenaLiveBlockLoaderConfig,
   ArenaCollectionFilter,
   ArenaEntryFilter,
-} from './arena-live-loader.js'
+} from './arena-live-block-loader.js'
 
 export { arenaBlockSchema } from './schema.js'
 export type { ArenaBlock } from './schema.js'

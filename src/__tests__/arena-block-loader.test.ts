@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import type { Block, ContentTypeFilter } from '@aredotna/sdk'
 import { createArena, ArenaAuthError, ArenaNotFoundError, ArenaRateLimitError } from '@aredotna/sdk'
-import { arenaLoader } from '../arena-loader.js'
+import { arenaBlockLoader } from '../arena-block-loader.js'
 import type { LoaderContext } from 'astro/loaders'
 import { z } from 'astro/zod'
 
@@ -39,7 +39,7 @@ function createMockContext(overrides?: Partial<LoaderContext>): LoaderContext {
       error: vi.fn(),
       debug: vi.fn(),
       fork: vi.fn(),
-      label: 'arena-loader',
+      label: 'arena-block-loader',
       options: {},
     } as unknown as LoaderContext['logger'],
     parseData: vi.fn().mockImplementation(({ data }) => Promise.resolve(data)),
@@ -148,7 +148,7 @@ function mockArena(paginateContentsImpl: ReturnType<typeof vi.fn>) {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('arenaLoader', () => {
+describe('arenaBlockLoader', () => {
   let mockPaginateContents: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -164,32 +164,32 @@ describe('arenaLoader', () => {
 
   describe('factory', () => {
     it('returns an object without throwing', () => {
-      expect(() => arenaLoader({ channel: 'my-channel' })).not.toThrow()
+      expect(() => arenaBlockLoader({ channel: 'my-channel' })).not.toThrow()
     })
 
-    it('has name "arena-loader"', () => {
-      expect(arenaLoader({ channel: 'my-channel' }).name).toBe('arena-loader')
+    it('has name "arena-block-loader"', () => {
+      expect(arenaBlockLoader({ channel: 'my-channel' }).name).toBe('arena-block-loader')
     })
 
     it('has a load method', () => {
-      expect(typeof arenaLoader({ channel: 'my-channel' }).load).toBe('function')
+      expect(typeof arenaBlockLoader({ channel: 'my-channel' }).load).toBe('function')
     })
 
     it('has a schema property', () => {
-      expect(arenaLoader({ channel: 'my-channel' }).schema).toBeDefined()
+      expect(arenaBlockLoader({ channel: 'my-channel' }).schema).toBeDefined()
     })
 
     it('accepts a numeric channel ID', () => {
-      expect(() => arenaLoader({ channel: 12345 })).not.toThrow()
+      expect(() => arenaBlockLoader({ channel: 12345 })).not.toThrow()
     })
 
     it('accepts a token', () => {
-      expect(() => arenaLoader({ channel: 'my-channel', token: 'abc' })).not.toThrow()
+      expect(() => arenaBlockLoader({ channel: 'my-channel', token: 'abc' })).not.toThrow()
     })
 
     it('accepts sort and types config', () => {
       expect(() =>
-        arenaLoader({ channel: 'my-channel', sort: 'created_at_desc', types: ['Image', 'Link'] }),
+        arenaBlockLoader({ channel: 'my-channel', sort: 'created_at_desc', types: ['Image', 'Link'] }),
       ).not.toThrow()
     })
   })
@@ -200,7 +200,7 @@ describe('arenaLoader', () => {
     it('calls store.clear() once at the start', async () => {
       mockPaginateContents.mockReturnValue(pagesOf({ data: [], meta: { has_more_pages: false } }))
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.clear).toHaveBeenCalledOnce()
     })
 
@@ -210,7 +210,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledTimes(3)
     })
 
@@ -220,7 +220,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.parseData).toHaveBeenCalledTimes(2)
     })
 
@@ -230,7 +230,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [block], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledWith(
         expect.objectContaining({ id: '42' }),
       )
@@ -242,7 +242,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [block], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledWith(
         expect.objectContaining({ data: block }),
       )
@@ -259,7 +259,7 @@ describe('arenaLoader', () => {
           set: vi.fn().mockReturnValue(false), // false = digest unchanged, no update
         } as unknown as LoaderContext['store'],
       })
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.generateDigest).toHaveBeenCalledWith(
         expect.objectContaining({ id: block.id }),
       )
@@ -270,7 +270,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).not.toHaveBeenCalled()
     })
   })
@@ -288,7 +288,7 @@ describe('arenaLoader', () => {
         ),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledTimes(3)
     })
 
@@ -297,7 +297,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(mockPaginateContents).toHaveBeenCalledWith(
         'my-channel',
         expect.anything(),
@@ -313,7 +313,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel', sort: 'created_at_asc' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel', sort: 'created_at_asc' }).load(ctx)
       expect(mockPaginateContents).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({ sort: 'created_at_asc' }),
@@ -332,7 +332,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel', types: ['Image'] }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel', types: ['Image'] }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledTimes(1)
       expect(ctx.store.set).toHaveBeenCalledWith(
         expect.objectContaining({ id: '2' }),
@@ -345,7 +345,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.store.set).toHaveBeenCalledTimes(2)
     })
   })
@@ -358,7 +358,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       expect(ctx.logger.info).toHaveBeenCalled()
     })
 
@@ -368,7 +368,7 @@ describe('arenaLoader', () => {
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
       const ctx = createMockContext()
-      await arenaLoader({ channel: 'my-channel' }).load(ctx)
+      await arenaBlockLoader({ channel: 'my-channel' }).load(ctx)
       // Expect at least one info call mentioning block count
       const calls = vi.mocked(ctx.logger.info).mock.calls.map((c) => String(c[0]))
       expect(calls.some((msg) => msg.includes('2'))).toBe(true)
@@ -385,7 +385,7 @@ describe('arenaLoader', () => {
         })(),
       )
       const ctx = createMockContext()
-      await expect(arenaLoader({ channel: 'private-channel' }).load(ctx)).rejects.toThrow(
+      await expect(arenaBlockLoader({ channel: 'private-channel' }).load(ctx)).rejects.toThrow(
         ArenaAuthError,
       )
     })
@@ -397,7 +397,7 @@ describe('arenaLoader', () => {
         })(),
       )
       const ctx = createMockContext()
-      await expect(arenaLoader({ channel: 'does-not-exist' }).load(ctx)).rejects.toThrow(
+      await expect(arenaBlockLoader({ channel: 'does-not-exist' }).load(ctx)).rejects.toThrow(
         ArenaNotFoundError,
       )
     })
@@ -409,7 +409,7 @@ describe('arenaLoader', () => {
         })(),
       )
       const ctx = createMockContext()
-      await expect(arenaLoader({ channel: 'my-channel' }).load(ctx)).rejects.toThrow(
+      await expect(arenaBlockLoader({ channel: 'my-channel' }).load(ctx)).rejects.toThrow(
         ArenaRateLimitError,
       )
     })
@@ -421,7 +421,7 @@ describe('arenaLoader', () => {
         })(),
       )
       const ctx = createMockContext()
-      await expect(arenaLoader({ channel: 'my-channel' }).load(ctx)).rejects.toThrow(/arena/i)
+      await expect(arenaBlockLoader({ channel: 'my-channel' }).load(ctx)).rejects.toThrow(/arena/i)
     })
   })
 
@@ -429,13 +429,13 @@ describe('arenaLoader', () => {
 
   describe('schema', () => {
     it('schema is a Zod schema (has parse method)', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       expect(schema).toBeDefined()
       expect(typeof (schema as z.ZodTypeAny).parse).toBe('function')
     })
 
     it('validates a Text block with content', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       const block = makeTextBlock()
       expect(() => (schema as z.ZodTypeAny).parse(block)).not.toThrow()
       const parsed = (schema as z.ZodTypeAny).parse(block)
@@ -445,7 +445,7 @@ describe('arenaLoader', () => {
     })
 
     it('validates an Image block with image.src', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       const block = makeImageBlock()
       expect(() => (schema as z.ZodTypeAny).parse(block)).not.toThrow()
       const parsed = (schema as z.ZodTypeAny).parse(block)
@@ -454,7 +454,7 @@ describe('arenaLoader', () => {
     })
 
     it('validates a Link block with source.url', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       const block = makeLinkBlock()
       expect(() => (schema as z.ZodTypeAny).parse(block)).not.toThrow()
       const parsed = (schema as z.ZodTypeAny).parse(block)
@@ -463,12 +463,12 @@ describe('arenaLoader', () => {
     })
 
     it('rejects an object missing the required id field', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       expect(() => (schema as z.ZodTypeAny).parse({ type: 'Text' })).toThrow()
     })
 
     it('rejects an object missing the required type field', () => {
-      const { schema } = arenaLoader({ channel: 'my-channel' })
+      const { schema } = arenaBlockLoader({ channel: 'my-channel' })
       expect(() => (schema as z.ZodTypeAny).parse({ id: 1, content: 'hello' })).toThrow()
     })
   })

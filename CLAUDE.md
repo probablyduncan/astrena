@@ -44,8 +44,8 @@ if ((item as { type?: string }).type === 'Channel') continue
 
 ## Error handling
 
-- **Build-time loader (`arenaLoader`)**: Re-throw `ArenaAuthError`, `ArenaNotFoundError`, `ArenaRateLimitError` as-is. Wrap anything else: `throw new Error(\`Arena loader failed for channel "...": ...\`)`. The word "Arena" in the message is used by tests to verify wrapping.
-- **Live loader (`arenaLiveLoader`)**: Catch all errors and return `{ error }` — never re-throw from `loadCollection` or `loadEntry`. Returning `undefined` from `loadEntry` signals "not found" to Astro (renders a 404).
+- **Build-time loader (`arenaBlockLoader`)**: Re-throw `ArenaAuthError`, `ArenaNotFoundError`, `ArenaRateLimitError` as-is. Wrap anything else: `throw new Error(\`Arena loader failed for channel "...": ...\`)`. The word "Arena" in the message is used by tests to verify wrapping.
+- **Live loader (`arenaLiveBlockLoader`)**: Catch all errors and return `{ error }` — never re-throw from `loadCollection` or `loadEntry`. Returning `undefined` from `loadEntry` signals "not found" to Astro (renders a 404).
 
 ## Schema
 

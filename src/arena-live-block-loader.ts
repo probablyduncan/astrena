@@ -3,7 +3,7 @@ import { createArena } from '@aredotna/sdk'
 import type { Block, ContentTypeFilter } from '@aredotna/sdk'
 import type { ChannelContentSort } from '@aredotna/sdk/api'
 
-export type ArenaLiveLoaderConfig = {
+export type ArenaLiveBlockLoaderConfig = {
   /** Are.na channel slug (e.g. "my-channel") or numeric ID */
   channel: string | number
   /** Personal Access Token — required for private or closed channels */
@@ -25,13 +25,13 @@ export type ArenaEntryFilter = {
 // Block satisfies Record<string, any> at runtime; the intersection makes it explicit to TypeScript.
 type BlockData = Block & Record<string, any>
 
-export function arenaLiveLoader(
-  config: ArenaLiveLoaderConfig,
+export function arenaLiveBlockLoader(
+  config: ArenaLiveBlockLoaderConfig,
 ): LiveLoader<BlockData, ArenaEntryFilter, ArenaCollectionFilter> {
   const arena = createArena({ token: config.token })
 
   return {
-    name: 'arena-live-loader',
+    name: 'arena-live-block-loader',
 
     async loadCollection(context) {
       const filter = context.filter

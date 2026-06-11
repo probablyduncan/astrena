@@ -4,7 +4,7 @@ import type { Block, ContentTypeFilter } from '@aredotna/sdk'
 import type { ChannelContentSort } from '@aredotna/sdk/api'
 import { arenaBlockSchema } from './schema.js'
 
-export type ArenaLoaderConfig = {
+export type ArenaBlockLoaderConfig = {
   /** Are.na channel slug (e.g. "my-channel") or numeric ID */
   channel: string | number
   /** Personal Access Token — required for private or closed channels */
@@ -15,11 +15,11 @@ export type ArenaLoaderConfig = {
   types?: ContentTypeFilter[]
 }
 
-export function arenaLoader(config: ArenaLoaderConfig): Loader {
+export function arenaBlockLoader(config: ArenaBlockLoaderConfig): Loader {
   const arena = createArena({ token: config.token })
 
   return {
-    name: 'arena-loader',
+    name: 'arena-block-loader',
     schema: arenaBlockSchema,
     async load(context: LoaderContext): Promise<void> {
       context.store.clear()

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import type { Block } from '@aredotna/sdk'
 import { createArena, ArenaAuthError, ArenaNotFoundError } from '@aredotna/sdk'
-import { arenaLiveLoader } from '../arena-live-loader.js'
+import { arenaLiveBlockLoader } from '../arena-live-block-loader.js'
 
 // Keep real error classes, only mock createArena
 vi.mock('@aredotna/sdk', async (importOriginal) => {
@@ -114,7 +114,7 @@ function mockArena(opts: {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('arenaLiveLoader', () => {
+describe('arenaLiveBlockLoader', () => {
   let mockPaginateContents: ReturnType<typeof vi.fn>
   let mockBlocksGet: ReturnType<typeof vi.fn>
 
@@ -134,27 +134,27 @@ describe('arenaLiveLoader', () => {
 
   describe('factory', () => {
     it('returns an object without throwing', () => {
-      expect(() => arenaLiveLoader({ channel: 'my-channel' })).not.toThrow()
+      expect(() => arenaLiveBlockLoader({ channel: 'my-channel' })).not.toThrow()
     })
 
-    it('has name "arena-live-loader"', () => {
-      expect(arenaLiveLoader({ channel: 'my-channel' }).name).toBe('arena-live-loader')
+    it('has name "arena-live-block-loader"', () => {
+      expect(arenaLiveBlockLoader({ channel: 'my-channel' }).name).toBe('arena-live-block-loader')
     })
 
     it('has a loadCollection method', () => {
-      expect(typeof arenaLiveLoader({ channel: 'my-channel' }).loadCollection).toBe('function')
+      expect(typeof arenaLiveBlockLoader({ channel: 'my-channel' }).loadCollection).toBe('function')
     })
 
     it('has a loadEntry method', () => {
-      expect(typeof arenaLiveLoader({ channel: 'my-channel' }).loadEntry).toBe('function')
+      expect(typeof arenaLiveBlockLoader({ channel: 'my-channel' }).loadEntry).toBe('function')
     })
 
     it('accepts a numeric channel ID', () => {
-      expect(() => arenaLiveLoader({ channel: 12345 })).not.toThrow()
+      expect(() => arenaLiveBlockLoader({ channel: 12345 })).not.toThrow()
     })
 
     it('accepts a token', () => {
-      expect(() => arenaLiveLoader({ channel: 'my-channel', token: 'tok_abc' })).not.toThrow()
+      expect(() => arenaLiveBlockLoader({ channel: 'my-channel', token: 'tok_abc' })).not.toThrow()
     })
   })
 
@@ -165,7 +165,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect(result).toEqual({ entries: [] })
     })
@@ -174,7 +174,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [makeTextBlock(), makeImageBlock()], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect('entries' in result && result.entries).toHaveLength(2)
     })
@@ -184,7 +184,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [block], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect('entries' in result && result.entries[0].id).toBe('42')
     })
@@ -194,7 +194,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [block], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect('entries' in result && result.entries[0].data).toEqual(block)
     })
@@ -206,7 +206,7 @@ describe('arenaLiveLoader', () => {
           { data: [makeTextBlock({ id: 3 })], meta: { has_more_pages: false } },
         ),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect('entries' in result && result.entries).toHaveLength(3)
     })
@@ -217,7 +217,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [block, channelItem as unknown as Block], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       // Only the real block should appear — the embedded channel is filtered out
       expect('entries' in result && result.entries).toHaveLength(1)
@@ -232,7 +232,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: [], meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       await loader.loadCollection({ filter: { sort: 'created_at_asc' } })
       expect(mockPaginateContents).toHaveBeenCalledWith(
         expect.anything(),
@@ -245,7 +245,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({ filter: { types: ['Image'] } })
       expect('entries' in result && result.entries).toHaveLength(1)
       expect('entries' in result && result.entries[0].data.type).toBe('Image')
@@ -256,7 +256,7 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         pagesOf({ data: blocks, meta: { has_more_pages: false } }),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({ filter: { types: ['Image', 'Link'] } })
       expect('entries' in result && result.entries).toHaveLength(2)
     })
@@ -271,7 +271,7 @@ describe('arenaLiveLoader', () => {
           throw new ArenaAuthError('Unauthorized', { status: 401 })
         })(),
       )
-      const loader = arenaLiveLoader({ channel: 'private-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'private-channel' })
       const result = await loader.loadCollection({})
       expect(result).toHaveProperty('error')
       expect((result as { error: unknown }).error).toBeInstanceOf(ArenaAuthError)
@@ -283,7 +283,7 @@ describe('arenaLiveLoader', () => {
           throw new ArenaNotFoundError('Not found', { status: 404 })
         })(),
       )
-      const loader = arenaLiveLoader({ channel: 'does-not-exist' })
+      const loader = arenaLiveBlockLoader({ channel: 'does-not-exist' })
       const result = await loader.loadCollection({})
       expect(result).toHaveProperty('error')
       expect((result as { error: unknown }).error).toBeInstanceOf(ArenaNotFoundError)
@@ -295,7 +295,7 @@ describe('arenaLiveLoader', () => {
           throw new TypeError('fetch failed')
         })(),
       )
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadCollection({})
       expect(result).toHaveProperty('error')
     })
@@ -306,7 +306,7 @@ describe('arenaLiveLoader', () => {
   describe('loadEntry() — happy path', () => {
     it('returns undefined for a non-existent block id', async () => {
       mockBlocksGet.mockResolvedValue(null)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 9999 } })
       expect(result).toBeUndefined()
     })
@@ -314,7 +314,7 @@ describe('arenaLiveLoader', () => {
     it('returns { id, data } for a valid block id', async () => {
       const block = makeTextBlock({ id: 42 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 42 } })
       expect(result).toBeDefined()
       expect(result).toHaveProperty('id', '42')
@@ -324,7 +324,7 @@ describe('arenaLiveLoader', () => {
     it('returned data includes the type discriminant field', async () => {
       const block = makeImageBlock({ id: 5 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 5 } })
       expect(result && 'data' in result && result.data.type).toBe('Image')
     })
@@ -332,7 +332,7 @@ describe('arenaLiveLoader', () => {
     it('passes block id to blocks.get()', async () => {
       const block = makeTextBlock({ id: 77 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       await loader.loadEntry({ filter: { id: 77 } })
       expect(mockBlocksGet).toHaveBeenCalledWith(77, expect.anything())
     })
@@ -343,7 +343,7 @@ describe('arenaLiveLoader', () => {
   describe('loadEntry() — error handling', () => {
     it('returns { error: ArenaAuthError } when token is required but missing', async () => {
       mockBlocksGet.mockRejectedValue(new ArenaAuthError('Unauthorized', { status: 401 }))
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 42 } })
       expect(result).toHaveProperty('error')
       expect((result as { error: unknown }).error).toBeInstanceOf(ArenaAuthError)
@@ -351,7 +351,7 @@ describe('arenaLiveLoader', () => {
 
     it('returns { error } on network failure', async () => {
       mockBlocksGet.mockRejectedValue(new TypeError('fetch failed'))
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 42 } })
       expect(result).toHaveProperty('error')
     })
@@ -365,7 +365,7 @@ describe('arenaLiveLoader', () => {
     it('allows accessing content after narrowing to Text type', async () => {
       const block = makeTextBlock({ id: 1 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 1 } })
       if (result && 'data' in result && result.data.type === 'Text') {
         // TypeScript should allow this without error
@@ -377,7 +377,7 @@ describe('arenaLiveLoader', () => {
     it('allows accessing image after narrowing to Image type', async () => {
       const block = makeImageBlock({ id: 2 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 2 } })
       if (result && 'data' in result && result.data.type === 'Image') {
         // TypeScript should allow this without error
@@ -389,7 +389,7 @@ describe('arenaLiveLoader', () => {
     it('allows accessing source after narrowing to Link type', async () => {
       const block = makeLinkBlock({ id: 3 })
       mockBlocksGet.mockResolvedValue(block)
-      const loader = arenaLiveLoader({ channel: 'my-channel' })
+      const loader = arenaLiveBlockLoader({ channel: 'my-channel' })
       const result = await loader.loadEntry({ filter: { id: 3 } })
       if (result && 'data' in result && result.data.type === 'Link') {
         // TypeScript should allow this without error
