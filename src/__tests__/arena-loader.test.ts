@@ -382,7 +382,6 @@ describe('arenaLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new ArenaAuthError('Unauthorized', { status: 401 })
-          yield // satisfy generator shape
         })(),
       )
       const ctx = createMockContext()
@@ -395,7 +394,6 @@ describe('arenaLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new ArenaNotFoundError('Not found', { status: 404 })
-          yield
         })(),
       )
       const ctx = createMockContext()
@@ -408,7 +406,6 @@ describe('arenaLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new ArenaRateLimitError('Rate limited', { status: 429 })
-          yield
         })(),
       )
       const ctx = createMockContext()
@@ -421,7 +418,6 @@ describe('arenaLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new TypeError('fetch failed')
-          yield
         })(),
       )
       const ctx = createMockContext()

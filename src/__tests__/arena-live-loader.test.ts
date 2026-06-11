@@ -269,7 +269,6 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new ArenaAuthError('Unauthorized', { status: 401 })
-          yield
         })(),
       )
       const loader = arenaLiveLoader({ channel: 'private-channel' })
@@ -282,7 +281,6 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new ArenaNotFoundError('Not found', { status: 404 })
-          yield
         })(),
       )
       const loader = arenaLiveLoader({ channel: 'does-not-exist' })
@@ -295,7 +293,6 @@ describe('arenaLiveLoader', () => {
       mockPaginateContents.mockReturnValue(
         (async function* () {
           throw new TypeError('fetch failed')
-          yield
         })(),
       )
       const loader = arenaLiveLoader({ channel: 'my-channel' })
