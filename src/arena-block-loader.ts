@@ -2,7 +2,7 @@ import type { Loader, LoaderContext } from 'astro/loaders'
 import { createArena, ArenaAuthError, ArenaNotFoundError, ArenaRateLimitError } from '@aredotna/sdk'
 import type { Block, ContentTypeFilter } from '@aredotna/sdk'
 import type { ChannelContentSort } from '@aredotna/sdk/api'
-import { arenaBlockSchema } from './schema.js'
+import { buildArenaBlockSchema } from './schema.js'
 
 export type ArenaBlockLoaderConfig = {
   /** Are.na channel slug (e.g. "my-channel") or numeric ID */
@@ -20,7 +20,7 @@ export function arenaBlockLoader(config: ArenaBlockLoaderConfig): Loader {
 
   return {
     name: 'arena-block-loader',
-    schema: arenaBlockSchema,
+    schema: buildArenaBlockSchema(config.types),
     async load(context: LoaderContext): Promise<void> {
       context.store.clear()
       context.logger.info(`Loading Are.na channel "${config.channel}"`)

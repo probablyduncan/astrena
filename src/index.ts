@@ -8,5 +8,5 @@ export type {
   ArenaEntryFilter,
 } from './arena-live-block-loader.js'
 
-export { arenaBlockSchema } from './schema.js'
+export { arenaBlockSchema, buildArenaBlockSchema } from './schema.js'
 export type { ArenaBlock } from './schema.js'
