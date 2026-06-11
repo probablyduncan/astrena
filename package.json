@@ -1,6 +1,6 @@
 {
   "name": "@probablyduncan/astrena",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "are.na channel content loader for astro.build",
   "repository": {
     "type": "git",
