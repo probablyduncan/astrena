@@ -1,7 +1,4 @@
-minimumReleaseAge: 0
-# onlyBuiltDependencies:
-#   - esbuild
-#   - sharp
+minimumReleaseAge: 0 # should remove this
 allowBuilds:
   esbuild: false
   sharp: false
